@@ -1,0 +1,7 @@
+<android.support.v7.widget.RecyclerView xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:id="@+id/list_pads"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	tools:context="de.claudiuscoenen.hackmdsnapshot.padselection.PadSelectionFragment"
+	tools:listitem="@layout/fragment_pad_selection_list_item" />
