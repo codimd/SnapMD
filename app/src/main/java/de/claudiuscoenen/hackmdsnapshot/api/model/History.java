@@ -6,6 +6,7 @@ import java.util.List;
 
 import de.claudiuscoenen.hackmdsnapshot.model.Pad;
 
+@SuppressWarnings("unused")
 public class History {
 
 	private List<Pad> history;

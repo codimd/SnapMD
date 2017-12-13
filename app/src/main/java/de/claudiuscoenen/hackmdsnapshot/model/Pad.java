@@ -3,6 +3,7 @@ package de.claudiuscoenen.hackmdsnapshot.model;
 
 import java.util.List;
 
+@SuppressWarnings("unused")
 public class Pad {
 
 	private String id;
