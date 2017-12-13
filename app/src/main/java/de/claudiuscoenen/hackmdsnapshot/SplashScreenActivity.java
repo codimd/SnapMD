@@ -1,6 +1,5 @@
 package de.claudiuscoenen.hackmdsnapshot;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 
@@ -17,9 +16,9 @@ public class SplashScreenActivity extends AppCompatActivity {
 		HackMdApplication app = (HackMdApplication) getApplication();
 
 		if (app.getLoginDataRepository().isLoggedIn()) {
-			startActivity(new Intent(this, SelectPadActivity.class));
+			startActivity(getIntent().setClass(this, SelectPadActivity.class));
 		} else {
-			startActivity(new Intent(this, LoginActivity.class));
+			startActivity(getIntent().setClass(this, LoginActivity.class));
 		}
 
 		finish();
