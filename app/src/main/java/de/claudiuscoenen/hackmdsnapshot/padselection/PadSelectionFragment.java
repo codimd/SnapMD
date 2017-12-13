@@ -43,8 +43,8 @@ public class PadSelectionFragment extends Fragment {
 
 		HackMdApplication app = (HackMdApplication) getActivity().getApplication();
 
-		Disposable disposable = app.getApi()
-				.getPads("my@mail.de", "mypassword")
+		// TODO: show loading indicator
+		Disposable disposable = app.getApi().getPads()
 				.observeOn(AndroidSchedulers.mainThread())
 				.subscribe(adapter::setPads, this::onLoadPadsError);
 		loadingOperations.add(disposable);
