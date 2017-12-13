@@ -1,3 +1,11 @@
 <resources>
 	<string name="app_name">HackMD Snapshot</string>
+	<string name="title_activity_login">Login</string>
+
+	<string name="login_url_label">HackMD Url:</string>
+	<string name="login_url_hint">https://my.hackmd.instance/</string>
+	<string name="login_mail_label">Mail:</string>
+	<string name="login_mail_hint">my.mail@address.com</string>
+	<string name="login_password_label">Password:</string>
+	<string name="login_button">Login</string>
 </resources>
