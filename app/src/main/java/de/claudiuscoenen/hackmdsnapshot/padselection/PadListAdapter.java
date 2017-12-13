@@ -18,7 +18,7 @@ import de.claudiuscoenen.hackmdsnapshot.model.Pad;
 class PadListAdapter extends RecyclerView.Adapter<PadListAdapter.ViewHolder> {
 
 	private List<Pad> pads = new ArrayList<>();
-	private Listener listener;
+	private final Listener listener;
 
 	PadListAdapter(Listener listener) {
 		this.listener = listener;
@@ -32,7 +32,7 @@ class PadListAdapter extends RecyclerView.Adapter<PadListAdapter.ViewHolder> {
 
 	@Override
 	public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-		View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.fragment_pad_selection_list_item, null);
+		View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.fragment_pad_selection_list_item, parent, false);
 		return new ViewHolder(view);
 	}
 

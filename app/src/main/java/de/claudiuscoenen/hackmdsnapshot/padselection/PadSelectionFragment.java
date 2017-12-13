@@ -25,8 +25,8 @@ public class PadSelectionFragment extends Fragment {
 	@BindView(R.id.list_pads)
 	RecyclerView padList;
 
+	private final CompositeDisposable loadingOperations = new CompositeDisposable();
 	private Listener listener;
-	private CompositeDisposable loadingOperations = new CompositeDisposable();
 
 	public PadSelectionFragment() {
 		// Required empty public constructor
