@@ -8,6 +8,7 @@ import java.net.CookiePolicy;
 
 import de.claudiuscoenen.hackmdsnapshot.api.HackMdApi;
 import de.claudiuscoenen.hackmdsnapshot.repository.LoginDataRepository;
+import timber.log.Timber;
 
 
 public class HackMdApplication extends Application {
@@ -25,6 +26,8 @@ public class HackMdApplication extends Application {
 	@Override
 	public void onCreate() {
 		super.onCreate();
+
+		Timber.plant(new Timber.DebugTree());
 
 		CookieManager cookieManager = new CookieManager();
 		cookieManager.setCookiePolicy(CookiePolicy.ACCEPT_ALL);
