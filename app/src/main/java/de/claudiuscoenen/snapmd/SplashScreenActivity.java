@@ -1,10 +1,10 @@
-package de.claudiuscoenen.hackmdsnapshot;
+package de.claudiuscoenen.snapmd;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 
-import de.claudiuscoenen.hackmdsnapshot.login.LoginActivity;
-import de.claudiuscoenen.hackmdsnapshot.padselection.SelectPadActivity;
+import de.claudiuscoenen.snapmd.login.LoginActivity;
+import de.claudiuscoenen.snapmd.padselection.SelectPadActivity;
 
 public class SplashScreenActivity extends AppCompatActivity {
 
@@ -13,7 +13,7 @@ public class SplashScreenActivity extends AppCompatActivity {
 		super.onCreate(savedInstanceState);
 		// TODO: add styling
 
-		HackMdApplication app = (HackMdApplication) getApplication();
+		SnapMdApplication app = (SnapMdApplication) getApplication();
 
 		if (app.getLoginDataRepository().isLoggedIn()) {
 			startActivity(getIntent().setClass(this, SelectPadActivity.class));

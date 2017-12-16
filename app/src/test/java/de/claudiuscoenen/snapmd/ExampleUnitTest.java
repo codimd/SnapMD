@@ -1,4 +1,4 @@
-package de.claudiuscoenen.hackmdsnapshot;
+package de.claudiuscoenen.snapmd;
 
 import org.junit.Test;
 

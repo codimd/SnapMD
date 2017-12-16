@@ -1,8 +1,8 @@
-package de.claudiuscoenen.hackmdsnapshot.api;
+package de.claudiuscoenen.snapmd.api;
 
 
-import de.claudiuscoenen.hackmdsnapshot.api.model.History;
-import de.claudiuscoenen.hackmdsnapshot.api.model.Media;
+import de.claudiuscoenen.snapmd.api.model.History;
+import de.claudiuscoenen.snapmd.api.model.Media;
 import io.reactivex.Completable;
 import io.reactivex.Single;
 import okhttp3.MultipartBody;

@@ -1,4 +1,4 @@
-package de.claudiuscoenen.hackmdsnapshot.padselection;
+package de.claudiuscoenen.snapmd.padselection;
 
 import android.app.Fragment;
 import android.content.Context;
@@ -12,9 +12,9 @@ import android.widget.Toast;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import de.claudiuscoenen.hackmdsnapshot.HackMdApplication;
-import de.claudiuscoenen.hackmdsnapshot.R;
-import de.claudiuscoenen.hackmdsnapshot.model.Pad;
+import de.claudiuscoenen.snapmd.SnapMdApplication;
+import de.claudiuscoenen.snapmd.R;
+import de.claudiuscoenen.snapmd.model.Pad;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
@@ -41,7 +41,7 @@ public class PadSelectionFragment extends Fragment {
 		padList.setLayoutManager(new LinearLayoutManager(getContext()));
 		padList.setAdapter(adapter);
 
-		HackMdApplication app = (HackMdApplication) getActivity().getApplication();
+		SnapMdApplication app = (SnapMdApplication) getActivity().getApplication();
 
 		// TODO: show loading indicator
 		Disposable disposable = app.getApi().getPads()

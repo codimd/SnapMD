@@ -1,4 +1,4 @@
-package de.claudiuscoenen.hackmdsnapshot.login;
+package de.claudiuscoenen.snapmd.login;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -12,9 +12,9 @@ import android.widget.Toast;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
-import de.claudiuscoenen.hackmdsnapshot.HackMdApplication;
-import de.claudiuscoenen.hackmdsnapshot.R;
-import de.claudiuscoenen.hackmdsnapshot.padselection.SelectPadActivity;
+import de.claudiuscoenen.snapmd.SnapMdApplication;
+import de.claudiuscoenen.snapmd.R;
+import de.claudiuscoenen.snapmd.padselection.SelectPadActivity;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
@@ -31,7 +31,7 @@ public class LoginActivityFragment extends Fragment {
 	EditText passwordText;
 
 	private final CompositeDisposable loadingOperations = new CompositeDisposable();
-	private HackMdApplication app;
+	private SnapMdApplication app;
 
 	public LoginActivityFragment() {
 	}
@@ -41,7 +41,7 @@ public class LoginActivityFragment extends Fragment {
 		View view = inflater.inflate(R.layout.fragment_login, container, false);
 		ButterKnife.bind(this, view);
 
-		app = (HackMdApplication) getActivity().getApplication();
+		app = (SnapMdApplication) getActivity().getApplication();
 
 		return view;
 	}

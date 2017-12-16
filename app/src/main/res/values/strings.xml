@@ -1,5 +1,5 @@
 <resources>
-	<string name="app_name">HackMD Snapshot</string>
+	<string name="app_name">SnapMD</string>
 	<string name="title_activity_login">Login</string>
 
 	<string name="login_url_label">HackMD Url:</string>

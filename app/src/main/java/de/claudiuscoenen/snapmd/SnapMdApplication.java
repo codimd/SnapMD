@@ -1,4 +1,4 @@
-package de.claudiuscoenen.hackmdsnapshot;
+package de.claudiuscoenen.snapmd;
 
 import android.app.Application;
 
@@ -6,12 +6,12 @@ import java.net.CookieHandler;
 import java.net.CookieManager;
 import java.net.CookiePolicy;
 
-import de.claudiuscoenen.hackmdsnapshot.api.HackMdApi;
-import de.claudiuscoenen.hackmdsnapshot.repository.LoginDataRepository;
+import de.claudiuscoenen.snapmd.api.HackMdApi;
+import de.claudiuscoenen.snapmd.repository.LoginDataRepository;
 import timber.log.Timber;
 
 
-public class HackMdApplication extends Application {
+public class SnapMdApplication extends Application {
 
 	private HackMdApi api;
 	private LoginDataRepository loginDataRepository;

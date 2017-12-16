@@ -1,13 +1,13 @@
-package de.claudiuscoenen.hackmdsnapshot.api;
+package de.claudiuscoenen.snapmd.api;
 
 
 import java.net.CookieHandler;
 import java.util.List;
 
-import de.claudiuscoenen.hackmdsnapshot.api.model.History;
-import de.claudiuscoenen.hackmdsnapshot.api.model.Media;
-import de.claudiuscoenen.hackmdsnapshot.model.Pad;
-import de.claudiuscoenen.hackmdsnapshot.repository.LoginDataRepository;
+import de.claudiuscoenen.snapmd.api.model.History;
+import de.claudiuscoenen.snapmd.api.model.Media;
+import de.claudiuscoenen.snapmd.model.Pad;
+import de.claudiuscoenen.snapmd.repository.LoginDataRepository;
 import io.reactivex.Completable;
 import io.reactivex.Single;
 import io.reactivex.schedulers.Schedulers;

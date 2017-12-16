@@ -1,4 +1,4 @@
-package de.claudiuscoenen.hackmdsnapshot.repository;
+package de.claudiuscoenen.snapmd.repository;
 
 
 import android.content.Context;

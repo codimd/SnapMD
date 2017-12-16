@@ -1,10 +1,10 @@
-package de.claudiuscoenen.hackmdsnapshot.api.model;
+package de.claudiuscoenen.snapmd.api.model;
 
 
 import java.util.Collections;
 import java.util.List;
 
-import de.claudiuscoenen.hackmdsnapshot.model.Pad;
+import de.claudiuscoenen.snapmd.model.Pad;
 
 @SuppressWarnings("unused")
 public class History {
