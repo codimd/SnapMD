@@ -1,9 +1,9 @@
 package de.claudiuscoenen.snapmd.padselection;
 
 
-import android.app.Fragment;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -52,7 +52,7 @@ public class ImageFragment extends Fragment {
 		ButterKnife.bind(this, view);
 
 		if (imageUri != null) {
-			Picasso.with(getContext()).load(imageUri).fit().into(imageView);
+			Picasso.with(getContext()).load(imageUri).fit().centerInside().into(imageView);
 		}
 
 		return view;
