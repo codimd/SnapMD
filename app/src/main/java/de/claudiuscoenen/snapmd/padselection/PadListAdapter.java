@@ -1,4 +1,4 @@
-package de.claudiuscoenen.hackmdsnapshot.padselection;
+package de.claudiuscoenen.snapmd.padselection;
 
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -11,8 +11,8 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import de.claudiuscoenen.hackmdsnapshot.R;
-import de.claudiuscoenen.hackmdsnapshot.model.Pad;
+import de.claudiuscoenen.snapmd.R;
+import de.claudiuscoenen.snapmd.model.Pad;
 
 
 class PadListAdapter extends RecyclerView.Adapter<PadListAdapter.ViewHolder> {

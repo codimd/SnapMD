@@ -1,4 +1,4 @@
-package de.claudiuscoenen.hackmdsnapshot.model;
+package de.claudiuscoenen.snapmd.model;
 
 
 import java.util.List;

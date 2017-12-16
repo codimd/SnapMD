@@ -1,9 +1,9 @@
-package de.claudiuscoenen.hackmdsnapshot.login;
+package de.claudiuscoenen.snapmd.login;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 
-import de.claudiuscoenen.hackmdsnapshot.R;
+import de.claudiuscoenen.snapmd.R;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -12,5 +12,5 @@ public class LoginActivity extends AppCompatActivity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_login);
 	}
-	
+
 }

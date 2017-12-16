@@ -1,4 +1,4 @@
-package de.claudiuscoenen.hackmdsnapshot.api.model;
+package de.claudiuscoenen.snapmd.api.model;
 
 
 @SuppressWarnings("unused")

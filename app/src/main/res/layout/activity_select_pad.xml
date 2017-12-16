@@ -5,7 +5,7 @@
 	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent"
-	tools:context="de.claudiuscoenen.hackmdsnapshot.padselection.SelectPadActivity">
+	tools:context="de.claudiuscoenen.snapmd.padselection.SelectPadActivity">
 
 	<FrameLayout
 		android:id="@+id/container_image"
@@ -24,7 +24,7 @@
 		app:layout_constraintGuide_percent="0.5" />
 
 	<fragment
-		android:name="de.claudiuscoenen.hackmdsnapshot.padselection.PadSelectionFragment"
+		android:name="de.claudiuscoenen.snapmd.padselection.PadSelectionFragment"
 		android:layout_width="0dp"
 		android:layout_height="0dp"
 		android:tag="PadSelectionFragment"

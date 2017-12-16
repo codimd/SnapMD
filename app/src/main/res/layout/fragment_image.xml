@@ -5,5 +5,5 @@
 	android:layout_height="match_parent"
 	android:background="#333333"
 	android:padding="@dimen/padding"
-	tools:context="de.claudiuscoenen.hackmdsnapshot.padselection.ImageFragment"
+	tools:context="de.claudiuscoenen.snapmd.padselection.ImageFragment"
 	tools:ignore="ContentDescription" />

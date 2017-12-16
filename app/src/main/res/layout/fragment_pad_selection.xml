@@ -3,5 +3,5 @@
 	android:id="@+id/list_pads"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent"
-	tools:context="de.claudiuscoenen.hackmdsnapshot.padselection.PadSelectionFragment"
+	tools:context="de.claudiuscoenen.snapmd.padselection.PadSelectionFragment"
 	tools:listitem="@layout/fragment_pad_selection_list_item" />

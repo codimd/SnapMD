@@ -1,4 +1,4 @@
-package de.claudiuscoenen.hackmdsnapshot.padselection;
+package de.claudiuscoenen.snapmd.padselection;
 
 import android.content.Intent;
 import android.net.Uri;
@@ -11,10 +11,10 @@ import org.apache.commons.io.IOUtils;
 import java.io.IOException;
 
 import butterknife.ButterKnife;
-import de.claudiuscoenen.hackmdsnapshot.HackMdApplication;
-import de.claudiuscoenen.hackmdsnapshot.R;
-import de.claudiuscoenen.hackmdsnapshot.api.model.Media;
-import de.claudiuscoenen.hackmdsnapshot.model.Pad;
+import de.claudiuscoenen.snapmd.SnapMdApplication;
+import de.claudiuscoenen.snapmd.R;
+import de.claudiuscoenen.snapmd.api.model.Media;
+import de.claudiuscoenen.snapmd.model.Pad;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
@@ -23,7 +23,7 @@ public class SelectPadActivity extends AppCompatActivity implements
 		PadSelectionFragment.Listener {
 
 	private final CompositeDisposable disposables = new CompositeDisposable();
-	private HackMdApplication app;
+	private SnapMdApplication app;
 	private Uri imageUri;
 
 	@Override
@@ -36,7 +36,7 @@ public class SelectPadActivity extends AppCompatActivity implements
 		String action = intent.getAction();
 		String type = intent.getType();
 
-		app = (HackMdApplication) getApplication();
+		app = (SnapMdApplication) getApplication();
 
 		imageUri = null;
 		if (Intent.ACTION_SEND.equals(action) && type != null && type.startsWith("image/")) {

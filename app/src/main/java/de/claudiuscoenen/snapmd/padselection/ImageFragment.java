@@ -1,4 +1,4 @@
-package de.claudiuscoenen.hackmdsnapshot.padselection;
+package de.claudiuscoenen.snapmd.padselection;
 
 
 import android.app.Fragment;
@@ -13,7 +13,7 @@ import com.squareup.picasso.Picasso;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import de.claudiuscoenen.hackmdsnapshot.R;
+import de.claudiuscoenen.snapmd.R;
 
 
 public class ImageFragment extends Fragment {
