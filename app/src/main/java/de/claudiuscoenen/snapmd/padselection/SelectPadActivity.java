@@ -73,8 +73,6 @@ public class SelectPadActivity extends AppCompatActivity implements
 
 	@Override
 	public void onPadSelected(Pad pad) {
-		Toast.makeText(this, pad.getText(), Toast.LENGTH_SHORT).show();
-
 		if (imageUri == null) {
 			return;
 		}
