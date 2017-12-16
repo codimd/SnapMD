@@ -5,6 +5,7 @@
 	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent"
+	android:animateLayoutChanges="true"
 	tools:context="de.claudiuscoenen.snapmd.padselection.SelectPadActivity">
 
 	<FrameLayout
@@ -23,15 +24,24 @@
 		android:orientation="horizontal"
 		app:layout_constraintGuide_percent="0.5" />
 
-	<fragment
-		android:name="de.claudiuscoenen.snapmd.padselection.PadSelectionFragment"
+	<FrameLayout
+		android:id="@+id/container_pad_selection"
 		android:layout_width="0dp"
 		android:layout_height="0dp"
-		android:tag="PadSelectionFragment"
 		app:layout_constraintBottom_toBottomOf="parent"
 		app:layout_constraintEnd_toEndOf="parent"
 		app:layout_constraintStart_toStartOf="parent"
 		app:layout_constraintTop_toBottomOf="@+id/guideline"
 		tools:layout="@layout/fragment_pad_selection" />
+
+	<ProgressBar
+		android:id="@+id/progress"
+		android:layout_width="match_parent"
+		android:layout_height="match_parent"
+		android:background="#aa000000"
+		android:indeterminate="true"
+		android:padding="@dimen/padding"
+		android:visibility="gone"
+		tools:visibility="visible" />
 
 </android.support.constraint.ConstraintLayout>

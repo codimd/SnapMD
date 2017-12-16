@@ -1,8 +1,8 @@
 package de.claudiuscoenen.snapmd.padselection;
 
-import android.app.Fragment;
 import android.content.Context;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -12,8 +12,8 @@ import android.widget.Toast;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import de.claudiuscoenen.snapmd.SnapMdApplication;
 import de.claudiuscoenen.snapmd.R;
+import de.claudiuscoenen.snapmd.SnapMdApplication;
 import de.claudiuscoenen.snapmd.model.Pad;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
@@ -27,6 +27,12 @@ public class PadSelectionFragment extends Fragment {
 
 	private final CompositeDisposable loadingOperations = new CompositeDisposable();
 	private Listener listener;
+
+
+	public static PadSelectionFragment newInstance() {
+		return new PadSelectionFragment();
+	}
+
 
 	public PadSelectionFragment() {
 		// Required empty public constructor
