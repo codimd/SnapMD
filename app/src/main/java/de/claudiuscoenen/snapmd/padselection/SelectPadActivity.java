@@ -4,15 +4,18 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.view.View;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import org.apache.commons.io.IOUtils;
 
 import java.io.IOException;
 
+import butterknife.BindView;
 import butterknife.ButterKnife;
-import de.claudiuscoenen.snapmd.SnapMdApplication;
 import de.claudiuscoenen.snapmd.R;
+import de.claudiuscoenen.snapmd.SnapMdApplication;
 import de.claudiuscoenen.snapmd.api.model.Media;
 import de.claudiuscoenen.snapmd.model.Pad;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -21,6 +24,12 @@ import io.reactivex.disposables.Disposable;
 
 public class SelectPadActivity extends AppCompatActivity implements
 		PadSelectionFragment.Listener {
+
+	@BindView(R.id.container_pad_selection)
+	protected View padSelectionContainer;
+
+	@BindView(R.id.progress)
+	protected ProgressBar progressBar;
 
 	private final CompositeDisposable disposables = new CompositeDisposable();
 	private SnapMdApplication app;
@@ -44,9 +53,14 @@ public class SelectPadActivity extends AppCompatActivity implements
 		}
 
 		if (savedInstanceState == null) {
-			getFragmentManager()
+			getSupportFragmentManager()
 					.beginTransaction()
 					.add(R.id.container_image, ImageFragment.newInstance(imageUri), "ImageFragment")
+					.commit();
+
+			getSupportFragmentManager()
+					.beginTransaction()
+					.add(R.id.container_pad_selection, PadSelectionFragment.newInstance(), "PadSelectionFragment")
 					.commit();
 		}
 	}
@@ -78,8 +92,11 @@ public class SelectPadActivity extends AppCompatActivity implements
 		Disposable disposable = app.getApi()
 				.uploadImage(bytes)
 				.observeOn(AndroidSchedulers.mainThread())
+				.doFinally(this::onUploadEnd)
 				.subscribe(this::onUploadSuccess, this::onUploadError);
+
 		disposables.add(disposable);
+		onUploadStart();
 	}
 
 	private void onUploadSuccess(Media media) {
@@ -88,5 +105,15 @@ public class SelectPadActivity extends AppCompatActivity implements
 
 	private void onUploadError(Throwable t) {
 		Toast.makeText(this, t.getMessage(), Toast.LENGTH_LONG).show();
+	}
+
+	private void onUploadStart() {
+		padSelectionContainer.setEnabled(false);
+		progressBar.setVisibility(View.VISIBLE);
+	}
+
+	private void onUploadEnd() {
+		padSelectionContainer.setEnabled(true);
+		progressBar.setVisibility(View.GONE);
 	}
 }
