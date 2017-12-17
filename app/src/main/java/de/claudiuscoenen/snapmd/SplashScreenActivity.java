@@ -1,5 +1,6 @@
 package de.claudiuscoenen.snapmd;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 
@@ -15,10 +16,14 @@ public class SplashScreenActivity extends AppCompatActivity {
 
 		SnapMdApplication app = (SnapMdApplication) getApplication();
 
+		// pass SEND intents on to next activity
+		Intent intent = Intent.ACTION_SEND.equals(getIntent().getAction()) ?
+				getIntent() : new Intent();
+
 		if (app.getLoginDataRepository().isLoggedIn()) {
-			startActivity(getIntent().setClass(this, SelectPadActivity.class));
+			startActivity(intent.setClass(this, SelectPadActivity.class));
 		} else {
-			startActivity(getIntent().setClass(this, LoginActivity.class));
+			startActivity(intent.setClass(this, LoginActivity.class));
 		}
 
 		finish();
