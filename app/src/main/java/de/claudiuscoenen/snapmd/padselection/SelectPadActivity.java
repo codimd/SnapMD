@@ -4,6 +4,8 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.Toast;
@@ -17,6 +19,7 @@ import butterknife.ButterKnife;
 import de.claudiuscoenen.snapmd.R;
 import de.claudiuscoenen.snapmd.SnapMdApplication;
 import de.claudiuscoenen.snapmd.api.model.Media;
+import de.claudiuscoenen.snapmd.login.LoginActivity;
 import de.claudiuscoenen.snapmd.model.Pad;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
@@ -69,6 +72,25 @@ public class SelectPadActivity extends AppCompatActivity implements
 	protected void onDestroy() {
 		super.onDestroy();
 		disposables.clear();
+	}
+
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		getMenuInflater().inflate(R.menu.select_pad, menu);
+		return true;
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+			case R.id.action_logout:
+				app.getLoginDataRepository().deleteLoginData();
+				startActivity(new Intent(this, LoginActivity.class));
+				finish();
+				return true;
+			default:
+				return super.onOptionsItemSelected(item);
+		}
 	}
 
 	@Override

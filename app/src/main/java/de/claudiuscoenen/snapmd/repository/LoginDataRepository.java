@@ -64,6 +64,17 @@ public class LoginDataRepository {
 		}
 	}
 
+	public void deleteLoginData() {
+		SharedPreferences settings = context.getSharedPreferences(SHARED_PREFS_NAME, 0);
+		SharedPreferences.Editor editor = settings.edit();
+
+		editor.putString(PREF_SERVER_URL, null);
+		editor.putString(PREF_MAIL, null);
+		editor.putString(PREF_PASSWORD, null);
+
+		editor.apply();
+	}
+
 	public interface Listener {
 		void onLoginDataChanged();
 	}

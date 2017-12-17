@@ -8,4 +8,6 @@
 	<string name="login_mail_hint">my.mail@address.com</string>
 	<string name="login_password_label">Password:</string>
 	<string name="login_button">Login</string>
+
+	<string name="action_logout">Log out</string>
 </resources>
