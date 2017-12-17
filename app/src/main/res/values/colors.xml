@@ -1,6 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
-	<color name="colorPrimary">#3F51B5</color>
-	<color name="colorPrimaryDark">#303F9F</color>
-	<color name="colorAccent">#FF4081</color>
+<resources xmlns:tools="http://schemas.android.com/tools">
+	<color name="colorPrimary">@color/codimd_blue</color>
+	<color name="colorPrimaryDark">#24547c</color>
+	<color name="colorAccent">@color/codimd_lime</color>
+
+	<color name="codimd_orange" tools:ignore="UnusedResources">#eda35e</color>
+	<color name="codimd_blue" tools:ignore="UnusedResources">#337ab7</color>
+	<color name="codimd_green" tools:ignore="UnusedResources">#449d44</color>
+	<color name="codimd_lime" tools:ignore="UnusedResources">#98c379</color>
+	<color name="codimd_red" tools:ignore="UnusedResources">#f76e79</color>
+	<color name="codimd_purple" tools:ignore="UnusedResources">#c678dd</color>
+	<color name="codimd_aqua" tools:ignore="UnusedResources">#56b6c2</color>
+
 </resources>
