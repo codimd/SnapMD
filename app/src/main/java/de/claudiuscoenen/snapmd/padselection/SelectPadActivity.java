@@ -12,6 +12,7 @@ import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import org.apache.commons.io.IOUtils;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -51,6 +52,7 @@ public class SelectPadActivity extends AppCompatActivity implements
 	private final CompositeDisposable disposables = new CompositeDisposable();
 	private SnapMdApplication app;
 	private Uri imageUri;
+	private String uploadedImageUrl = null;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -111,8 +113,6 @@ public class SelectPadActivity extends AppCompatActivity implements
 	public void onPadSelected(Pad pad) {
 		socketIoSetup(pad, "test");
 
-		imageUri = null;
-
 		if (imageUri == null) {
 			return;
 		}
@@ -138,6 +138,9 @@ public class SelectPadActivity extends AppCompatActivity implements
 	}
 
 	private Socket socket;
+	private JSONObject cursor = null;
+	private String documentContent = null;
+	private long documentRevision = 0;
 
 	private void socketIOMagicTest(Pad pad, String text) {
 		if (socket == null) {
@@ -185,13 +188,15 @@ public class SelectPadActivity extends AppCompatActivity implements
 				Map<String, List<String>> headers = (Map<String, List<String>>) args12[0];
 				// modify request headers
 				String padURL = app.getLoginDataRepository().getServerUrl()+pad.getId();
-				Log.i("socketio", "Pad-URL " + padURL);
+				Log.v("socketio", "Pad-URL " + padURL);
 				headers.put("Referer", Arrays.asList(padURL));
 			});
-		});
 
-		socket.io().on(Manager.EVENT_TRANSPORT, args -> {
-			Transport transport = (Transport) args[0];
+			transport.on(Transport.EVENT_RESPONSE_HEADERS, args12 -> {
+				@SuppressWarnings("unchecked")
+				Map<String, List<String>> headers = (Map<String, List<String>>) args12[0];
+			});
+
 			transport.on(Transport.EVENT_ERROR, args1 -> {
 				Exception e = (Exception) args1[0];
 				Log.e("socketio", "transport error " + e);
@@ -203,7 +208,7 @@ public class SelectPadActivity extends AppCompatActivity implements
 		socket.on(Socket.EVENT_CONNECT, new Emitter.Listener() {
 			@Override
 			public void call(Object... args) {
-				Log.w("socketio", "connected?");
+				Log.w("socketio", "connected.");
 			}
 		});
 
@@ -211,19 +216,93 @@ public class SelectPadActivity extends AppCompatActivity implements
 		socket.on(Socket.EVENT_CONNECT_TIMEOUT, args -> Log.e("socketio", "connect timeout"));
 		socket.on(Socket.EVENT_CONNECT_ERROR, args -> Log.e("socketio", "econnect error"));
 
-		socket.on("cursor activity", args -> Log.w("socketio", "cursor activity received"));
-		socket.on("cursor blur", args -> Log.w("socketio", "cursor blur received"));
-		socket.on("cursor focus", args -> Log.w("socketio", "cursor focus received"));
-		socket.on("selection", args -> Log.w("socketio", "selection received"));
-		socket.on("online users", args -> {
-			Log.w("socketio", "online users");
+		socket.on("doc", args -> {
+			try {
+				JSONObject ob = (JSONObject) args[0];
+				documentContent = ob.getString("str");
+				documentRevision = ob.getLong("revision");
+				tryAppendImage();
+				Log.i("socketio", "doc received, content: " + documentContent);
+			} catch (JSONException e) {
+				Log.e("json", "json for 'doc' did not contain the exepected format.\n" + e.toString());
+			}
 		});
+		socket.on("online users", args -> {
+			Log.v("socketio", "online users received");
+			try {
+				JSONArray users = ((JSONObject) args[0]).getJSONArray("users");
+				for (int i = 0; i < users.length(); i++) {
+					JSONObject user = users.getJSONObject(i);
+					// String name = user.getString("name");
+					Log.v("json", "- parsed user: " + user.getString("name") + " / " + user.getString("id") + " / " + user.getString("userid"));
+					if (!user.isNull("cursor")) { // TODO also check for user name or something like that!
+						cursor = user.getJSONObject("cursor");
+					}
+				}
+				tryAppendImage();
+			} catch (JSONException e) {
+				Log.e("json", "json for 'online users' did not contain the expected format\n" + e.toString());
+			}
+		});
+		//socket.on("refresh", args -> Log.v("socketio", "refresh received"));
+		//socket.on("cursor activity", args -> Log.v("socketio", "cursor activity received"));
+		//socket.on("cursor blur", args -> Log.v("socketio", "cursor blur received"));
+		//socket.on("cursor focus", args -> Log.v("socketio", "cursor focus received"));
+		//socket.on("selection", args -> Log.v("socketio", "selection received"));
 
 		socket.connect();
 		Log.i("socketio", "trying to connect");
 	}
 
+	private void tryAppendImage() {
+		if (documentContent == null) {
+			Log.i("bla", "Document not yet loaded");
+			return;
+		}
+
+		// todo check availability of a valid cursor
+		if (false && cursor == null) {
+			Log.i("bla", "No Cursor Found");
+			return;
+		}
+		if (uploadedImageUrl == null) {
+			Log.i("bla", "no Image URL");
+			return;
+		}
+
+		Log.i("bla", "would now edit the document");
+		//cursor.getLong("line");
+		//cursor.getLong("ch");
+		//cursor.getLong("xRel");
+		// socket.emit("operation", "bla");
+
+		// 42["operation", 1, [163, "https", 1], {ranges: [{anchor: 168, head: 168}]}]
+		//        ^name    ^rev ^before ^ins ^after
+		JSONArray operation = new JSONArray();
+		operation.put(documentContent.length() - 1);
+		// todo could also include some meta info in the alt attribute.
+		operation.put("\n![](" + uploadedImageUrl + ")\n");
+		operation.put(1);
+
+		JSONObject selection = new JSONObject();
+		JSONArray selectionArray = new JSONArray();
+		JSONObject selectionItem = new JSONObject();
+		try {
+			selection.put("ranges", selectionArray);
+			selectionArray.put(selectionItem);
+			selectionItem.put("anchor", documentContent.length());
+			selectionItem.put("head", documentContent.length());
+			socket.emit("operation", documentRevision, operation, selection);
+			documentContent = null;
+			uploadedImageUrl = null;
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+	}
+
 	private void onUploadSuccess(Media media) {
+		uploadedImageUrl = media.getLink();
+		tryAppendImage();
 		Toast.makeText(this, media.getLink(), Toast.LENGTH_LONG).show();
 	}
 
