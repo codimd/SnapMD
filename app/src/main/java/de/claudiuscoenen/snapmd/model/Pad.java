@@ -1,6 +1,8 @@
 package de.claudiuscoenen.snapmd.model;
 
 
+import android.util.Log;
+
 import java.util.List;
 
 @SuppressWarnings("unused")
@@ -8,7 +10,7 @@ public class Pad {
 
 	private String id;
 	private String text;
-	private long time;
+	private String time;
 	private List<String> tags;
 
 	public Pad() {
@@ -36,11 +38,16 @@ public class Pad {
 	}
 
 	public long getTime() {
-		return time;
+		return 0L; // time;
 	}
 
 	public void setTime(long time) {
-		this.time = time;
+		this.time = ""; // time;
+	}
+
+	public void setTime(String time) {
+		Log.w("Pad", "invalid JSON entry for " + this.getId());
+		this.time = "";
 	}
 
 	public List<String> getTags() {
