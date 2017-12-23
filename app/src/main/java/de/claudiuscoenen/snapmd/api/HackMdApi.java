@@ -1,6 +1,7 @@
 package de.claudiuscoenen.snapmd.api;
 
 
+import java.io.IOException;
 import java.net.CookieHandler;
 import java.util.List;
 
@@ -11,11 +12,14 @@ import de.claudiuscoenen.snapmd.repository.LoginDataRepository;
 import io.reactivex.Completable;
 import io.reactivex.Single;
 import io.reactivex.schedulers.Schedulers;
+import okhttp3.Interceptor;
 import okhttp3.JavaNetCookieJar;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 import okhttp3.OkHttpClient;
+import okhttp3.Request;
 import okhttp3.RequestBody;
+import okhttp3.Response;
 import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
@@ -34,13 +38,30 @@ public class HackMdApi {
 		HttpLoggingInterceptor logging = new HttpLoggingInterceptor()
 				.setLevel(HttpLoggingInterceptor.Level.BODY);
 
+		Interceptor userAgent = new Interceptor() {
+			@Override
+			public Response intercept(Chain chain) throws IOException {
+				Request originalRequest = chain.request();
+				Request requestWithUserAgent = originalRequest.newBuilder()
+					.removeHeader("User-Agent")
+					.addHeader("User-Agent", "SnapMD")
+					.build();
+				return chain.proceed(requestWithUserAgent);
+			}
+		};
+
 		JavaNetCookieJar cookieJar = new JavaNetCookieJar(CookieHandler.getDefault());
 		httpClient = new OkHttpClient.Builder()
 				.addInterceptor(logging)
+				.addInterceptor(userAgent)
 				.cookieJar(cookieJar)
 				.build();
 
 		onLoginDataChanged();
+	}
+
+	public OkHttpClient getHttpClient() {
+		return httpClient;
 	}
 
 	public Single<List<Pad>> getPads() {
