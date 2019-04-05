@@ -10,7 +10,7 @@ import java.util.List;
 
 public class LoginDataRepository {
 
-	private final static String SHARED_PREFS_NAME = "de.claudiuscoenen.hackmdsnapshot.SHARED_PREFS";
+	private final static String SHARED_PREFS_NAME = "de.claudiuscoenen.snapmd.SHARED_PREFS";
 	private final static String PREF_SERVER_URL = "PREF_SERVER_URL";
 	private final static String PREF_MAIL = "PREF_MAIL";
 	private final static String PREF_PASSWORD = "PREF_PASSWORD";
