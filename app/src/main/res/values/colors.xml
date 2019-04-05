@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
-	<color name="colorPrimary">@color/hackmd_blue</color>
+	<color name="colorPrimary">@color/codisnap_blue</color>
 	<color name="colorPrimaryDark">#24547c</color>
-	<color name="colorAccent">@color/hackmd_lime</color>
+	<color name="colorAccent">@color/codisnap_lime</color>
 
-	<color name="hackmd_orange" tools:ignore="UnusedResources">#eda35e</color>
-	<color name="hackmd_blue" tools:ignore="UnusedResources">#337ab7</color>
-	<color name="hackmd_green" tools:ignore="UnusedResources">#449d44</color>
-	<color name="hackmd_lime" tools:ignore="UnusedResources">#98c379</color>
-	<color name="hackmd_red" tools:ignore="UnusedResources">#f76e79</color>
-	<color name="hackmd_purple" tools:ignore="UnusedResources">#c678dd</color>
-	<color name="hackmd_aqua" tools:ignore="UnusedResources">#56b6c2</color>
+	<color name="codisnap_orange" tools:ignore="UnusedResources">#eda35e</color>
+	<color name="codisnap_blue" tools:ignore="UnusedResources">#337ab7</color>
+	<color name="codisnap_green" tools:ignore="UnusedResources">#449d44</color>
+	<color name="codisnap_lime" tools:ignore="UnusedResources">#98c379</color>
+	<color name="codisnap_red" tools:ignore="UnusedResources">#f76e79</color>
+	<color name="codisnap_purple" tools:ignore="UnusedResources">#c678dd</color>
+	<color name="codisnap_aqua" tools:ignore="UnusedResources">#56b6c2</color>
 
 </resources>

@@ -25,13 +25,13 @@ import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
 
-public class HackMdApi {
+public class CodiMdApi {
 
 	private final LoginDataRepository loginDataRepository;
 	private final OkHttpClient httpClient;
-	private HackMdService apiService;
+	private CodiMdService apiService;
 
-	public HackMdApi(LoginDataRepository loginDataRepository) {
+	public CodiMdApi(LoginDataRepository loginDataRepository) {
 		this.loginDataRepository = loginDataRepository;
 		loginDataRepository.addListener(this::onLoginDataChanged);
 
@@ -101,6 +101,6 @@ public class HackMdApi {
 				.client(httpClient)
 				.build();
 
-		apiService = retrofit.create(HackMdService.class);
+		apiService = retrofit.create(CodiMdService.class);
 	}
 }
