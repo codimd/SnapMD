@@ -20,8 +20,8 @@ import io.socket.engineio.client.Transport;
 import okhttp3.OkHttpClient;
 
 public class SocketIoWrapper {
-	private String apiUrl;
-	private OkHttpClient client;
+	private final String apiUrl;
+	private final OkHttpClient client;
 	private Socket socket;
 
 	private JSONObject cursor = null;
@@ -69,12 +69,7 @@ public class SocketIoWrapper {
 			});
 		});
 
-		socket.on(Socket.EVENT_CONNECT, new Emitter.Listener() {
-			@Override
-			public void call(Object... args) {
-				Log.w("socketio", "connected.");
-			}
-		});
+		socket.on(Socket.EVENT_CONNECT, args -> Log.w("socketio", "connected."));
 
 		socket.on(Socket.EVENT_DISCONNECT, args -> Log.w("socketio", "disconnected?"));
 		socket.on(Socket.EVENT_CONNECT_TIMEOUT, args -> Log.e("socketio", "connect timeout"));
@@ -163,12 +158,7 @@ public class SocketIoWrapper {
 			selectionArray.put(selectionItem);
 			selectionItem.put("anchor", documentContent.length());
 			selectionItem.put("head", documentContent.length());
-			socket.emit("operation", documentRevision, operation, selection, new Ack() {
-				@Override
-				public void call(Object... args) {
-					Log.i("socketio", "sent operation successfully");
-				}
-			});
+			socket.emit("operation", documentRevision, operation, selection, (Ack) args -> Log.i("socketio", "sent operation successfully"));
 			documentContent = null;
 			textToAppend = null;
 		} catch (JSONException e) {
