@@ -5,7 +5,6 @@ import android.util.Log;
 
 import java.util.List;
 
-@SuppressWarnings("unused")
 public class Pad {
 
 	private String id;

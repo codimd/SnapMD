@@ -1,7 +1,6 @@
 package de.claudiuscoenen.snapmd.api.model;
 
 
-@SuppressWarnings("unused")
 public class Media {
 
 	private String link;

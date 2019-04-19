@@ -38,16 +38,13 @@ public class CodiMdApi {
 		HttpLoggingInterceptor logging = new HttpLoggingInterceptor()
 				.setLevel(HttpLoggingInterceptor.Level.BODY);
 
-		Interceptor userAgent = new Interceptor() {
-			@Override
-			public Response intercept(Chain chain) throws IOException {
-				Request originalRequest = chain.request();
-				Request requestWithUserAgent = originalRequest.newBuilder()
-					.removeHeader("User-Agent")
-					.addHeader("User-Agent", "SnapMD")
-					.build();
-				return chain.proceed(requestWithUserAgent);
-			}
+		Interceptor userAgent = chain -> {
+			Request originalRequest = chain.request();
+			Request requestWithUserAgent = originalRequest.newBuilder()
+				.removeHeader("User-Agent")
+				.addHeader("User-Agent", "SnapMD")
+				.build();
+			return chain.proceed(requestWithUserAgent);
 		};
 
 		JavaNetCookieJar cookieJar = new JavaNetCookieJar(CookieHandler.getDefault());
