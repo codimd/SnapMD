@@ -1,18 +1,21 @@
 package de.claudiuscoenen.snapmd.api.model;
 
-
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import de.claudiuscoenen.snapmd.model.Pad;
 
-@SuppressWarnings("unused")
 public class History {
 
 	private List<Pad> history;
 
 	public List<Pad> getHistory() {
-		return history == null ? Collections.emptyList() : history;
+		if (history == null) {
+			return Collections.emptyList();
+		}
+		history.sort(Comparator.comparingLong(Pad::getTime).reversed());
+		return history;
 	}
 
 	public void setHistory(List<Pad> history) {
