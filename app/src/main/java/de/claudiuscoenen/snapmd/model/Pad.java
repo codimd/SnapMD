@@ -9,7 +9,7 @@ public class Pad {
 
 	private String id;
 	private String text;
-	private String time;
+	private Long time;
 	private List<String> tags;
 
 	public Pad() {
@@ -37,16 +37,16 @@ public class Pad {
 	}
 
 	public long getTime() {
-		return 0L; // time;
+		return time;
 	}
 
 	public void setTime(long time) {
-		this.time = ""; // time;
+		this.time = time;
 	}
 
 	public void setTime(String time) {
 		Log.w("Pad", "invalid JSON entry for " + this.getId());
-		this.time = "";
+		this.time = Long.parseLong(time, 10);
 	}
 
 	public List<String> getTags() {
