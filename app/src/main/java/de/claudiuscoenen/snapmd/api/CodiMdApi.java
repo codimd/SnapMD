@@ -1,10 +1,17 @@
 package de.claudiuscoenen.snapmd.api;
 
 
-import java.net.CookieHandler;
+import android.content.Context;
+
+import com.franmontiel.persistentcookiejar.ClearableCookieJar;
+import com.franmontiel.persistentcookiejar.PersistentCookieJar;
+import com.franmontiel.persistentcookiejar.cache.SetCookieCache;
+import com.franmontiel.persistentcookiejar.persistence.SharedPrefsCookiePersistor;
+
 import java.util.Arrays;
 import java.util.List;
 
+import de.claudiuscoenen.snapmd.BuildConfig;
 import de.claudiuscoenen.snapmd.api.model.History;
 import de.claudiuscoenen.snapmd.api.model.Media;
 import de.claudiuscoenen.snapmd.model.Pad;
@@ -14,7 +21,6 @@ import io.reactivex.Single;
 import io.reactivex.schedulers.Schedulers;
 import okhttp3.ConnectionSpec;
 import okhttp3.Interceptor;
-import okhttp3.JavaNetCookieJar;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 import okhttp3.OkHttpClient;
@@ -24,6 +30,7 @@ import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
+import timber.log.Timber;
 
 public class CodiMdApi {
 
@@ -31,25 +38,26 @@ public class CodiMdApi {
 	private final OkHttpClient httpClient;
 	private CodiMdService apiService;
 
-	public CodiMdApi(LoginDataRepository loginDataRepository) {
+	public CodiMdApi(Context context, LoginDataRepository loginDataRepository) {
 		this.loginDataRepository = loginDataRepository;
 		loginDataRepository.addListener(this::onLoginDataChanged);
 
 		HttpLoggingInterceptor logging = new HttpLoggingInterceptor()
-				.setLevel(HttpLoggingInterceptor.Level.BODY);
+				.setLevel(HttpLoggingInterceptor.Level.BASIC);
 
 		Interceptor userAgent = chain -> {
 			Request originalRequest = chain.request();
 			Request requestWithUserAgent = originalRequest.newBuilder()
-				.removeHeader("User-Agent")
-				.addHeader("User-Agent", "SnapMD")
+				.header("User-Agent", "SnapMD " + BuildConfig.VERSION_NAME + (BuildConfig.DEBUG ? " (debug)" : ""))
 				.build();
 			return chain.proceed(requestWithUserAgent);
 		};
 
-		JavaNetCookieJar cookieJar = new JavaNetCookieJar(CookieHandler.getDefault());
+		ClearableCookieJar cookieJar = new PersistentCookieJar(new SetCookieCache(), new SharedPrefsCookiePersistor(context));
+
 		httpClient = new OkHttpClient.Builder()
-				.connectionSpecs(Arrays.asList(ConnectionSpec.MODERN_TLS, ConnectionSpec.COMPATIBLE_TLS))
+				.connectionSpecs(Arrays.asList(ConnectionSpec.MODERN_TLS))
+				.followRedirects(false)
 				.addInterceptor(logging)
 				.addInterceptor(userAgent)
 				.cookieJar(cookieJar)
@@ -63,8 +71,8 @@ public class CodiMdApi {
 	}
 
 	public Single<List<Pad>> getPads() {
-		return apiService.login(loginDataRepository.getMail(), loginDataRepository.getPassword())
-				.andThen(apiService.history())
+		// TODO needs to try a login if this is being redirected in any way.
+		return apiService.history()
 				.map(History::getHistory)
 				.subscribeOn(Schedulers.io());
 	}
@@ -88,7 +96,8 @@ public class CodiMdApi {
 				.subscribeOn(Schedulers.io());
 	}
 
-	private void onLoginDataChanged() {
+	public void onLoginDataChanged() {
+		Timber.i("login data changed, recreating retrofit api service");
 		String url = loginDataRepository.getServerUrl() == null ?
 				"https://example.com/" : loginDataRepository.getServerUrl();
 
