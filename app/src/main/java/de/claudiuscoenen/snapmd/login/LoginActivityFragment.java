@@ -20,6 +20,7 @@ import de.claudiuscoenen.snapmd.padselection.SelectPadActivity;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
+import retrofit2.HttpException;
 
 public class LoginActivityFragment extends Fragment {
 
@@ -71,10 +72,15 @@ public class LoginActivityFragment extends Fragment {
 
 	private void onLoginComplete() {
 		app.getLoginDataRepository().saveLoginData(urlText.getText().toString(), mailText.getText().toString(), passwordText.getText().toString());
+		app.getApi().onLoginDataChanged();
 		startActivity(new Intent(getContext(), SelectPadActivity.class));
 	}
 
 	private void onLoginError(Throwable t) {
-		Toast.makeText(getContext(), t.getMessage(), Toast.LENGTH_SHORT).show();
+		if (((HttpException) t).code() == 302) {
+			onLoginComplete();
+		} else {
+			Toast.makeText(getContext(), t.getMessage(), Toast.LENGTH_SHORT).show();
+		}
 	}
 }

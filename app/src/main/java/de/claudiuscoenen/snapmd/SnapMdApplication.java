@@ -34,6 +34,6 @@ public class SnapMdApplication extends Application {
 		CookieHandler.setDefault(cookieManager);
 
 		loginDataRepository = new LoginDataRepository(this);
-		api = new CodiMdApi(loginDataRepository);
+		api = new CodiMdApi(getApplicationContext(), loginDataRepository);
 	}
 }
