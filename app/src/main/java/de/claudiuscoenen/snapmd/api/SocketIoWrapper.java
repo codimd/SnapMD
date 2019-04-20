@@ -1,6 +1,6 @@
 package de.claudiuscoenen.snapmd.api;
 
-import android.util.Log;
+import android.net.Uri;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -15,9 +15,9 @@ import io.socket.client.Ack;
 import io.socket.client.IO;
 import io.socket.client.Manager;
 import io.socket.client.Socket;
-import io.socket.emitter.Emitter;
 import io.socket.engineio.client.Transport;
 import okhttp3.OkHttpClient;
+import timber.log.Timber;
 
 public class SocketIoWrapper {
 	private final String apiUrl;
@@ -36,17 +36,20 @@ public class SocketIoWrapper {
 	}
 
 	public void connect(String padId) {
-		Log.i("socketio", "Establishing socket connection to pad " + padId);
+		Timber.i("Establishing socket connection to pad %s", padId);
 
 		IO.Options opts = new IO.Options();
 		opts.secure = true;
 		opts.callFactory = client;
 		opts.webSocketFactory = client;
 
+		Uri.Builder padUri = Uri.parse(apiUrl).buildUpon();
+		padUri.appendQueryParameter("noteId", padId);
+
 		try {
-			socket = IO.socket(apiUrl, opts);
+			socket = IO.socket(padUri.toString(), opts);
 		} catch (URISyntaxException e) {
-			Log.w("socketio", e.toString());
+			Timber.w(e.toString());
 			return;
 		}
 
@@ -57,55 +60,54 @@ public class SocketIoWrapper {
 				@SuppressWarnings("unchecked")
 				Map<String, List<String>> headers = (Map<String, List<String>>) args12[0];
 				String padURL = apiUrl + padId;
-				Log.v("socketio", "Pad-URL " + padURL);
+				Timber.v("Pad-URL %s", padURL);
 				headers.put("Referer", Arrays.asList(padURL));
 			});
 
 			transport.on(Transport.EVENT_ERROR, args1 -> {
 				Exception e = (Exception) args1[0];
-				Log.e("socketio", "transport error " + e);
+				Timber.e(e, "transport error");
 				e.printStackTrace();
 				e.getCause().printStackTrace();
 			});
 		});
 
-		socket.on(Socket.EVENT_CONNECT, args -> Log.w("socketio", "connected."));
-
-		socket.on(Socket.EVENT_DISCONNECT, args -> Log.w("socketio", "disconnected?"));
-		socket.on(Socket.EVENT_CONNECT_TIMEOUT, args -> Log.e("socketio", "connect timeout"));
-		socket.on(Socket.EVENT_CONNECT_ERROR, args -> Log.e("socketio", "econnect error"));
+		socket.on(Socket.EVENT_CONNECT, args -> Timber.w("connected."));
+		socket.on(Socket.EVENT_DISCONNECT, args -> Timber.w("disconnected?"));
+		socket.on(Socket.EVENT_CONNECT_TIMEOUT, args -> Timber.e("connect timeout"));
+		socket.on(Socket.EVENT_CONNECT_ERROR, args -> Timber.e("econnect error"));
 
 		socket.on("doc", args -> {
 			try {
 				JSONObject ob = (JSONObject) args[0];
 				documentContent = ob.getString("str");
 				documentRevision = ob.getLong("revision");
-				Log.i("socketio", "doc received, content: " + documentContent);
+				Timber.i("doc received, content: %s", documentContent);
 				addText();
 			} catch (JSONException e) {
-				Log.e("socketio", "json for 'doc' did not contain the exepected format.\n" + e.toString());
+				Timber.e(e, "json for 'doc' did not contain the exepected format.");
 			}
 		});
 		socket.on("online users", args -> {
-			Log.v("socketio", "online users received");
+			Timber.v("online users received");
 			try {
 				JSONArray users = ((JSONObject) args[0]).getJSONArray("users");
 				for (int i = 0; i < users.length(); i++) {
 					JSONObject user = users.getJSONObject(i);
 					// String name = user.getString("name");
-					Log.v("socketio", "- parsed user: " + user.getString("name") + " / " + user.getString("id") + " / " + user.getString("userid"));
+					Timber.v("- parsed user: " + user.getString("name") + " / " + user.getString("id") + " / " + user.getString("userid"));
 					if (!user.isNull("cursor")) { // TODO also check for user name or something like that!
 						cursor = user.getJSONObject("cursor");
 					}
 				}
 				addText();
 			} catch (JSONException e) {
-				Log.e("socketio", "json for 'online users' did not contain the expected format\n" + e.toString());
+				Timber.e(e, "json for 'online users' did not contain the expected format");
 			}
 		});
 
 		socket.connect();
-		Log.i("socketio", "trying to connect");
+		Timber.i("trying to connect");
 	}
 
 	public void disconnect() {
@@ -121,21 +123,21 @@ public class SocketIoWrapper {
 
 	private void addText() {
 		if (documentContent == null) {
-			Log.i("socketio", "Document not yet loaded");
+			Timber.i("Document not yet loaded");
 			return;
 		}
 
 		// todo check availability of a valid cursor
 		if (false) {
-			Log.i("socketio", "No Cursor Found");
+			Timber.i("No Cursor Found");
 			return;
 		}
 		if (textToAppend == null) {
-			Log.i("socketio", "no Image URL");
+			Timber.i("no Image URL");
 			return;
 		}
 
-		Log.i("socketio", "attempting to edit the document");
+		Timber.i("attempting to edit the document");
 		//cursor.getLong("line");
 		//cursor.getLong("ch");
 		//cursor.getLong("xRel");
@@ -158,7 +160,7 @@ public class SocketIoWrapper {
 			selectionArray.put(selectionItem);
 			selectionItem.put("anchor", documentContent.length());
 			selectionItem.put("head", documentContent.length());
-			socket.emit("operation", documentRevision, operation, selection, (Ack) args -> Log.i("socketio", "sent operation successfully"));
+			socket.emit("operation", documentRevision, operation, selection, (Ack) args -> Timber.i("sent operation successfully"));
 			documentContent = null;
 			textToAppend = null;
 		} catch (JSONException e) {
