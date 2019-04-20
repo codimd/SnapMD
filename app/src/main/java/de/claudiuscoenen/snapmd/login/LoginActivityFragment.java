@@ -2,18 +2,20 @@ package de.claudiuscoenen.snapmd.login;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import androidx.fragment.app.Fragment;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import de.claudiuscoenen.snapmd.SnapMdApplication;
 import de.claudiuscoenen.snapmd.R;
+import de.claudiuscoenen.snapmd.api.CodiMdApi;
 import de.claudiuscoenen.snapmd.padselection.SelectPadActivity;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
@@ -54,9 +56,14 @@ public class LoginActivityFragment extends Fragment {
 
 	@OnClick(R.id.btn_login)
 	void onLoginClick() {
+		final String serverUrl = urlText.getText().toString();
+		final String email = mailText.getText().toString();
+		final String password = passwordText.getText().toString();
+
 		// TODO: show loading indicator
-		Disposable disposable = app.getApi()
-				.validateLogin(urlText.getText().toString(), mailText.getText().toString(), passwordText.getText().toString())
+		final CodiMdApi api = app.getApi();
+		Disposable disposable = api
+				.validateLogin(serverUrl, email, password)
 				.observeOn(AndroidSchedulers.mainThread())
 				.subscribe(this::onLoginComplete, this::onLoginError);
 		loadingOperations.add(disposable);
