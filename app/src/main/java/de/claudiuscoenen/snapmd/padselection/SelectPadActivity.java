@@ -15,6 +15,8 @@ import org.apache.commons.io.IOUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -146,8 +148,10 @@ public class SelectPadActivity extends AppCompatActivity implements
 
 	private void onUploadSuccess(Media media) {
 		String uploadedImageUrl = media.getLink();
+		SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
+		String timestamp = formatter.format(new Date());
 
-		socketIoWrapper.setText("\n![SnapMD Upload](" + uploadedImageUrl + ")\n");
+		socketIoWrapper.setText("\n![SnapMD Upload at " + timestamp + "](" + uploadedImageUrl + ")\n");
 		Timber.i("upload successful, URL: %s", uploadedImageUrl);
 		Toast.makeText(this, media.getLink(), Toast.LENGTH_LONG).show();
 	}

@@ -11,7 +11,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-import io.socket.client.Ack;
 import io.socket.client.IO;
 import io.socket.client.Manager;
 import io.socket.client.Socket;
@@ -39,6 +38,7 @@ public class SocketIoWrapper {
 		Timber.i("Establishing socket connection to pad %s", padId);
 		textToAppend = "";
 		documentContent = "";
+		cursor = null;
 
 		IO.Options opts = new IO.Options();
 		opts.timeout = 1000;
@@ -98,30 +98,47 @@ public class SocketIoWrapper {
 		socket.on("online users", args -> {
 			Timber.v("online users received");
 			try {
-				JSONArray users = ((JSONObject) args[0]).getJSONArray("users");
-				for (int i = 0; i < users.length(); i++) {
-					JSONObject user = users.getJSONObject(i);
-					// String name = user.getString("name");
-					Timber.v("- parsed user: " + user.getString("name") + " / " + user.getString("id") + " / " + user.getString("userid"));
-					if (!user.isNull("cursor")) { // TODO also check for user name or something like that!
-						cursor = user.getJSONObject("cursor");
-					}
-				}
-				addText();
+				electCursor(args);
 			} catch (JSONException e) {
 				Timber.e(e, "json for 'online users' did not contain the expected format");
 			}
+			addText();
 		});
 
 		socket.connect();
 		Timber.i("trying to connect");
 	}
 
+	private void electCursor(Object[] args) throws JSONException {
+		String currentUserId = "";
+		JSONArray users = ((JSONObject) args[0]).getJSONArray("users");
+		for (int i = 0; i < users.length(); i++) {
+			JSONObject user = users.getJSONObject(i);
+			if (user.getString("id").equals(socket.id())) {
+				currentUserId = user.getString("userid");
+			}
+		}
+		for (int i = 0; i < users.length(); i++) {
+			JSONObject user = users.getJSONObject(i);
+			// String name = user.getString("name");
+			if (user.isNull("cursor")) {
+				Timber.v("Skipping cursor for %s: not set", user.getString("name"));
+			} else if (user.getString("id").equals(socket.id())) {
+				Timber.v("Skipping cursor for %s: own connection", user.getString("name"));
+			} else if (!user.getString("userid").equals(currentUserId)) {
+				Timber.v("Skipping cursor for %s: different userid", user.getString("name"));
+			} else {
+				// all previous checks successful, that's our cursor!
+				Timber.v("Using cursor for %s: Connection ID: %s, UserId: %s", user.getString("name"), user.getString("id"), user.getString("userid"));
+				cursor = user.getJSONObject("cursor");
+			}
+		}
+	}
+
 	public void disconnect() {
 		if (socket != null) {
 			socket.disconnect();
 		}
-
 	}
 
 	public void setText(String text) {
@@ -152,19 +169,21 @@ public class SocketIoWrapper {
 
 		Timber.i("attempting to edit the document");
 
-		int offset = documentContent.length() - 1; // end of document as default
-		try {
-			int line = cursor.getInt("line");
-			int character = cursor.getInt("ch");
-			offset = 0;
-			while (line > 0) {
-				line--;
-				offset = documentContent.indexOf('\n', offset) + 1;
+		int offset = documentContent.length(); // end of document as default
+		if (cursor != null) {
+			try {
+				int line = cursor.getInt("line");
+				int character = cursor.getInt("ch");
+				offset = 0;
+				while (line > 0) {
+					line--;
+					offset = documentContent.indexOf('\n', offset) + 1;
+				}
+				offset += character;
+				Timber.v("final offset is %d", offset);
+			} catch (JSONException e) {
+				Timber.e(e, "While parsing the cursor information");
 			}
-			offset += character;
-			Timber.v("final offset is %d", offset);
-		} catch (JSONException e) {
-			Timber.e(e, "While parsing the cursor information");
 		}
 
 		// 42["operation", 1, [163, "https", 1], {ranges: [{anchor: 168, head: 168}]}]
