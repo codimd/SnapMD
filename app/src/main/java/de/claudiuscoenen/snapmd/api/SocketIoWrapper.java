@@ -80,7 +80,7 @@ public class SocketIoWrapper {
 		});
 
 		socket.on(Socket.EVENT_CONNECT, args -> Timber.w("connected."));
-		socket.on(Socket.EVENT_DISCONNECT, args -> Timber.w("disconnected?"));
+		socket.on(Socket.EVENT_DISCONNECT, args -> Timber.w("disconnected"));
 		socket.on(Socket.EVENT_CONNECT_TIMEOUT, args -> Timber.e("connect timeout"));
 		socket.on(Socket.EVENT_CONNECT_ERROR, args -> Timber.e("econnect error"));
 
@@ -151,19 +151,32 @@ public class SocketIoWrapper {
 		}
 
 		Timber.i("attempting to edit the document");
-		//cursor.getLong("line");
-		//cursor.getLong("ch");
-		//cursor.getLong("xRel");
-		// socket.emit("operation", "bla");
+
+		int offset = documentContent.length() - 1; // end of document as default
+		try {
+			int line = cursor.getInt("line");
+			int character = cursor.getInt("ch");
+			offset = 0;
+			while (line > 0) {
+				line--;
+				offset = documentContent.indexOf('\n', offset) + 1;
+			}
+			offset += character;
+			Timber.v("final offset is %d", offset);
+		} catch (JSONException e) {
+			Timber.e(e, "While parsing the cursor information");
+		}
 
 		// 42["operation", 1, [163, "https", 1], {ranges: [{anchor: 168, head: 168}]}]
 		//        ^name    ^rev ^before ^ins ^after
 		JSONArray operation = new JSONArray();
-		operation.put(documentContent.length() - 1);
-		// todo could also include some meta info in the alt attribute.
-
+		if (offset > 0) {
+			operation.put(offset);
+		}
 		operation.put(textToAppend);
-		operation.put(1);
+		if (offset < documentContent.length()) {
+			operation.put(documentContent.length() - offset);
+		}
 
 		JSONObject selection = new JSONObject();
 		JSONArray selectionArray = new JSONArray();
@@ -174,6 +187,7 @@ public class SocketIoWrapper {
 			selectionItem.put("anchor", documentContent.length());
 			selectionItem.put("head", documentContent.length());
 			Object[] data = {documentRevision, operation, selection};
+			Timber.d("now emitting OT changeset #%d", documentRevision);
 			socket.emit("operation", data, args -> Timber.i("sent operation successfully"));
 			documentContent = "";
 			textToAppend = "";
