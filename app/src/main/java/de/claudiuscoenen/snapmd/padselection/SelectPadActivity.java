@@ -55,10 +55,6 @@ public class SelectPadActivity extends AppCompatActivity implements
 
 		imageUri = null;
 		app = (SnapMdApplication) getApplication();
-		socketIoWrapper = new SocketIoWrapper(
-			app.getLoginDataRepository().getServerUrl(),
-			app.getApi().getHttpClient()
-		);
 
 		if (Intent.ACTION_SEND.equals(action) && type != null && type.startsWith("image/")) {
 			imageUri = intent.getParcelableExtra(Intent.EXTRA_STREAM);
@@ -78,10 +74,24 @@ public class SelectPadActivity extends AppCompatActivity implements
 	}
 
 	@Override
-	protected void onDestroy() {
-		super.onDestroy();
+	protected void onResume() {
+		super.onResume();
+		socketIoWrapper = new SocketIoWrapper(
+				app.getLoginDataRepository().getServerUrl(),
+				app.getApi().getHttpClient()
+		);
+	}
+
+	@Override
+	protected void onPause() {
+		super.onPause();
 		socketIoWrapper.disconnect();
 		socketIoWrapper = null;
+	}
+
+	@Override
+	protected void onDestroy() {
+		super.onDestroy();
 		disposables.clear();
 	}
 
