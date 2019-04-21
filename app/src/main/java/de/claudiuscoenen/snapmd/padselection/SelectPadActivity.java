@@ -14,6 +14,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import org.apache.commons.io.IOUtils;
 
 import java.io.IOException;
+import java.io.InputStream;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -26,6 +27,7 @@ import de.claudiuscoenen.snapmd.model.Pad;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
+import timber.log.Timber;
 
 public class SelectPadActivity extends AppCompatActivity implements
 		PadSelectionFragment.Listener {
@@ -113,7 +115,9 @@ public class SelectPadActivity extends AppCompatActivity implements
 		byte[] bytes;
 		try {
 			//noinspection ConstantConditions
-			bytes = IOUtils.toByteArray(getContentResolver().openInputStream(imageUri));
+			InputStream is = getContentResolver().openInputStream(imageUri);
+			bytes = IOUtils.toByteArray(is);
+			is.close();
 		} catch (IOException | NullPointerException e) {
 			onUploadError(e);
 			return;
@@ -132,11 +136,14 @@ public class SelectPadActivity extends AppCompatActivity implements
 
 	private void onUploadSuccess(Media media) {
 		String uploadedImageUrl = media.getLink();
-		socketIoWrapper.setText("\n![](" + uploadedImageUrl + ")\n");
+
+		socketIoWrapper.setText("\n![SnapMD Upload](" + uploadedImageUrl + ")\n");
+		Timber.i("upload successful, URL: %s", uploadedImageUrl);
 		Toast.makeText(this, media.getLink(), Toast.LENGTH_LONG).show();
 	}
 
 	private void onUploadError(Throwable t) {
+		Timber.e(t, "upload failed");
 		Toast.makeText(this, t.getMessage(), Toast.LENGTH_LONG).show();
 	}
 
