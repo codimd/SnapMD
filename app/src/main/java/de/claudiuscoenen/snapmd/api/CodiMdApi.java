@@ -57,7 +57,6 @@ public class CodiMdApi {
 
 		httpClient = new OkHttpClient.Builder()
 				.connectionSpecs(Arrays.asList(ConnectionSpec.MODERN_TLS))
-				.followRedirects(false)
 				.addInterceptor(logging)
 				.addInterceptor(userAgent)
 				.cookieJar(cookieJar)

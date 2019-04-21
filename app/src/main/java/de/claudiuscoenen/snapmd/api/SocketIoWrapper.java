@@ -25,9 +25,9 @@ public class SocketIoWrapper {
 	private Socket socket;
 
 	private JSONObject cursor = null;
-	private String documentContent = null;
-	private long documentRevision = 0;
 	private String textToAppend = "";
+	private String documentContent = "";
+	private long documentRevision = 0;
 
 	public SocketIoWrapper(String url, OkHttpClient httpClient) {
 		apiUrl = url;
@@ -37,14 +37,21 @@ public class SocketIoWrapper {
 
 	public void connect(String padId) {
 		Timber.i("Establishing socket connection to pad %s", padId);
+		textToAppend = "";
+		documentContent = "";
 
 		IO.Options opts = new IO.Options();
+		opts.timeout = 1000;
 		opts.secure = true;
 		opts.callFactory = client;
 		opts.webSocketFactory = client;
 
 		Uri.Builder padUri = Uri.parse(apiUrl).buildUpon();
 		padUri.appendQueryParameter("noteId", padId);
+
+		if (socket != null) {
+			socket.disconnect();
+		}
 
 		try {
 			socket = IO.socket(padUri.toString(), opts);
@@ -82,7 +89,7 @@ public class SocketIoWrapper {
 				JSONObject ob = (JSONObject) args[0];
 				documentContent = ob.getString("str");
 				documentRevision = ob.getLong("revision");
-				Timber.i("doc received, content: %s", documentContent);
+				Timber.d("doc received, content: %s", documentContent);
 				addText();
 			} catch (JSONException e) {
 				Timber.e(e, "json for 'doc' did not contain the exepected format.");
@@ -114,26 +121,32 @@ public class SocketIoWrapper {
 		if (socket != null) {
 			socket.disconnect();
 		}
+
 	}
 
 	public void setText(String text) {
+		Timber.d("Incoming new text: %s", text);
 		textToAppend = text;
 		addText();
 	}
 
 	private void addText() {
-		if (documentContent == null) {
-			Timber.i("Document not yet loaded");
+		if (documentContent.equals("") && textToAppend.equals("")) {
+			Timber.v("neither document nor text are set. Nothing to do.");
+			return;
+		}
+		if (textToAppend.equals("")) {
+			Timber.i("no text to add to the Document");
+			return;
+		}
+		if (documentContent.equals("")) {
+			Timber.i("document not yet loaded.");
 			return;
 		}
 
 		// todo check availability of a valid cursor
 		if (false) {
 			Timber.i("No Cursor Found");
-			return;
-		}
-		if (textToAppend == null) {
-			Timber.i("no Image URL");
 			return;
 		}
 
@@ -160,9 +173,10 @@ public class SocketIoWrapper {
 			selectionArray.put(selectionItem);
 			selectionItem.put("anchor", documentContent.length());
 			selectionItem.put("head", documentContent.length());
-			socket.emit("operation", documentRevision, operation, selection, (Ack) args -> Timber.i("sent operation successfully"));
-			documentContent = null;
-			textToAppend = null;
+			Object[] data = {documentRevision, operation, selection};
+			socket.emit("operation", data, args -> Timber.i("sent operation successfully"));
+			documentContent = "";
+			textToAppend = "";
 		} catch (JSONException e) {
 			e.printStackTrace();
 		}

@@ -77,10 +77,6 @@ public class LoginActivityFragment extends Fragment {
 	}
 
 	private void onLoginError(Throwable t) {
-		if (((HttpException) t).code() == 302) {
-			onLoginComplete();
-		} else {
-			Toast.makeText(getContext(), t.getMessage(), Toast.LENGTH_SHORT).show();
-		}
+		Toast.makeText(getContext(), t.getMessage(), Toast.LENGTH_SHORT).show();
 	}
 }
