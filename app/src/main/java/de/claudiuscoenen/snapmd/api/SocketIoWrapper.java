@@ -41,7 +41,7 @@ public class SocketIoWrapper {
 		cursor = null;
 
 		IO.Options opts = new IO.Options();
-		opts.timeout = 1000;
+		opts.timeout = 5000;
 		opts.secure = true;
 		opts.callFactory = client;
 		opts.webSocketFactory = client;
@@ -89,7 +89,7 @@ public class SocketIoWrapper {
 				JSONObject ob = (JSONObject) args[0];
 				documentContent = ob.getString("str");
 				documentRevision = ob.getLong("revision");
-				Timber.d("doc received, content: %s", documentContent);
+				Timber.d("doc in revision %d received, content: %s", documentRevision, documentContent);
 				addText();
 			} catch (JSONException e) {
 				Timber.e(e, "json for 'doc' did not contain the exepected format.");
@@ -103,6 +103,16 @@ public class SocketIoWrapper {
 				Timber.e(e, "json for 'online users' did not contain the expected format");
 			}
 			addText();
+		});
+		socket.on("ack", args -> {
+			int newRevision = (int)args[0];
+			Timber.v("ack: %d", newRevision);
+			if (newRevision == documentRevision + 1) {
+				Timber.i("Everything went fine, now disconnecting");
+				documentContent = "";
+				textToAppend = "";
+				socket.disconnect();
+			}
 		});
 
 		socket.connect();
