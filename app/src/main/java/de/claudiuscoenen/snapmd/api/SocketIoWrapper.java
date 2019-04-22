@@ -97,11 +97,7 @@ public class SocketIoWrapper {
 		});
 		socket.on("online users", args -> {
 			Timber.v("online users received");
-			try {
-				electCursor(args);
-			} catch (JSONException e) {
-				Timber.e(e, "json for 'online users' did not contain the expected format");
-			}
+			cursor = SocketIoWrapper.electCursor(args, socket.id());
 			addText();
 		});
 		socket.on("ack", args -> {
@@ -119,32 +115,6 @@ public class SocketIoWrapper {
 		Timber.i("trying to connect");
 	}
 
-	private void electCursor(Object[] args) throws JSONException {
-		String currentUserId = "";
-		JSONArray users = ((JSONObject) args[0]).getJSONArray("users");
-		for (int i = 0; i < users.length(); i++) {
-			JSONObject user = users.getJSONObject(i);
-			if (user.getString("id").equals(socket.id())) {
-				currentUserId = user.getString("userid");
-			}
-		}
-		for (int i = 0; i < users.length(); i++) {
-			JSONObject user = users.getJSONObject(i);
-			// String name = user.getString("name");
-			if (user.isNull("cursor")) {
-				Timber.v("Skipping cursor for %s: not set", user.getString("name"));
-			} else if (user.getString("id").equals(socket.id())) {
-				Timber.v("Skipping cursor for %s: own connection", user.getString("name"));
-			} else if (!user.getString("userid").equals(currentUserId)) {
-				Timber.v("Skipping cursor for %s: different userid", user.getString("name"));
-			} else {
-				// all previous checks successful, that's our cursor!
-				Timber.v("Using cursor for %s: Connection ID: %s, UserId: %s", user.getString("name"), user.getString("id"), user.getString("userid"));
-				cursor = user.getJSONObject("cursor");
-			}
-		}
-	}
-
 	public void disconnect() {
 		if (socket != null) {
 			socket.disconnect();
@@ -157,71 +127,110 @@ public class SocketIoWrapper {
 		addText();
 	}
 
-	private void addText() {
-		if (documentContent.equals("") && textToAppend.equals("")) {
-			Timber.v("neither document nor text are set. Nothing to do.");
-			return;
-		}
-		if (textToAppend.equals("")) {
-			Timber.i("no text to add to the Document");
-			return;
-		}
-		if (documentContent.equals("")) {
-			Timber.i("document not yet loaded.");
-			return;
-		}
-
-		// todo check availability of a valid cursor
-		if (false) {
-			Timber.i("No Cursor Found");
-			return;
-		}
-
-		Timber.i("attempting to edit the document");
-
-		int offset = documentContent.length(); // end of document as default
-		if (cursor != null) {
-			try {
-				int line = cursor.getInt("line");
-				int character = cursor.getInt("ch");
-				offset = 0;
-				while (line > 0) {
-					line--;
-					offset = documentContent.indexOf('\n', offset) + 1;
+	private static JSONObject electCursor(Object[] args, String myUserId) {
+		String currentUserId = "";
+		try {
+			JSONArray users = ((JSONObject) args[0]).getJSONArray("users");
+			for (int i = 0; i < users.length(); i++) {
+				JSONObject user = users.getJSONObject(i);
+				if (user.getString("id").equals(myUserId)) {
+					currentUserId = user.getString("userid");
 				}
-				offset += character;
-				Timber.v("final offset is %d", offset);
-			} catch (JSONException e) {
-				Timber.e(e, "While parsing the cursor information");
 			}
+			for (int i = 0; i < users.length(); i++) {
+				JSONObject user = users.getJSONObject(i);
+				// String name = user.getString("name");
+				if (user.isNull("cursor")) {
+					Timber.v("Skipping cursor for %s: not set", user.getString("name"));
+				} else if (user.getString("id").equals(myUserId)) {
+					Timber.v("Skipping cursor for %s: own connection", user.getString("name"));
+				} else if (!user.getString("userid").equals(currentUserId)) {
+					Timber.v("Skipping cursor for %s: different userid", user.getString("name"));
+				} else {
+					// all previous checks successful, that's our cursor!
+					Timber.v("Using cursor for %s: Connection ID: %s, UserId: %s", user.getString("name"), user.getString("id"), user.getString("userid"));
+					return user.getJSONObject("cursor");
+				}
+			}
+		} catch (JSONException e) {
+			Timber.e(e, "json for 'online users' did not contain the expected format");
 		}
 
+		return null;
+	}
+
+	private static JSONArray createOperation(int offset, String text, int length) {
 		// 42["operation", 1, [163, "https", 1], {ranges: [{anchor: 168, head: 168}]}]
-		//        ^name    ^rev ^before ^ins ^after
+		//        ^name    ^rev ^before ^ins ^after, sum must be document length.
 		JSONArray operation = new JSONArray();
 		if (offset > 0) {
 			operation.put(offset);
 		}
-		operation.put(textToAppend);
-		if (offset < documentContent.length()) {
-			operation.put(documentContent.length() - offset);
+		operation.put(text);
+		if (offset < length) {
+			operation.put(length - offset);
 		}
+		return operation;
+	}
 
+	private static JSONObject createSelection(int anchor, int head) {
 		JSONObject selection = new JSONObject();
 		JSONArray selectionArray = new JSONArray();
 		JSONObject selectionItem = new JSONObject();
 		try {
 			selection.put("ranges", selectionArray);
 			selectionArray.put(selectionItem);
-			selectionItem.put("anchor", documentContent.length());
-			selectionItem.put("head", documentContent.length());
-			Object[] data = {documentRevision, operation, selection};
-			Timber.d("now emitting OT changeset #%d", documentRevision);
-			socket.emit("operation", data, args -> Timber.i("sent operation successfully"));
-			documentContent = "";
-			textToAppend = "";
+			selectionItem.put("anchor", anchor);
+			selectionItem.put("head", head);
 		} catch (JSONException e) {
-			e.printStackTrace();
+			Timber.e(e, "error while creating the JSON Selection");
 		}
+		return selection;
+	}
+
+	private static int offsetFromCursor(String document, JSONObject cursor) {
+		int offset;
+		try {
+			int line = cursor.getInt("line");
+			int character = cursor.getInt("ch");
+			offset = 0;
+			while (line > 0) {
+				line--;
+				offset = document.indexOf('\n', offset) + 1;
+			}
+			offset += character;
+			Timber.v("cursor offset is %d", offset);
+			return offset;
+		} catch (NullPointerException e) {
+			Timber.i("No Cursor set, defaulting to end of document");
+		} catch (JSONException e) {
+			Timber.e(e, "While parsing the cursor information");
+		}
+		return document.length();
+	}
+
+	private void addText() {
+		if (documentContent.equals("") && textToAppend.equals("")) {
+			Timber.d("neither document nor text are set. Nothing to do.");
+			return;
+		}
+		if (textToAppend.equals("")) {
+			Timber.d("no text to add to the Document");
+			return;
+		}
+		if (documentContent.equals("")) {
+			Timber.d("document not yet loaded.");
+			return;
+		}
+
+		Timber.i("attempting to edit the document");
+
+		int documentLength = documentContent.length();
+		int offset = SocketIoWrapper.offsetFromCursor(documentContent, cursor);
+		JSONArray operation = createOperation(offset, textToAppend, documentLength);
+		JSONObject selection = createSelection(documentLength, documentLength);
+		Object[] data = {documentRevision, operation, selection};
+		Timber.d("now emitting OT changeset #%d", documentRevision);
+		socket.emit("operation", data, args -> Timber.i("sent operation successfully"));
 	}
 }
