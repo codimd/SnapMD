@@ -19,6 +19,7 @@
 		<activity android:name="de.claudiuscoenen.snapmd.padselection.SelectPadActivity" />
 		<activity
 			android:name="de.claudiuscoenen.snapmd.login.LoginActivity"
+			android:windowSoftInputMode="adjustResize"
 			android:label="@string/title_activity_login" />
 		<activity
 			android:name="de.claudiuscoenen.snapmd.SplashScreenActivity"
